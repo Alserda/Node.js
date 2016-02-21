@@ -4,13 +4,18 @@ var multer = require('multer');
 var upload = multer({dest: 'uploads/'});
 var util = require('util');
 
+var greetings = require('../models/greetings')
+var User = require('../models/user');
+
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
 
 router.get('/register', function(req, res, next) {
-  console.log(util.inspect(req.route, false, null));
+  // console.log(util.inspect(req.route, false, null));
+  var henk = greetings.sayHelloInEnglish('Peter')
+  console.log(henk);
   res.render('register', {
     title: 'Register'
   });
@@ -73,10 +78,10 @@ router.post('/register', upload.single('avatar'), function(req, res, next) {
     });
 
     // Create user
-    // User.createUser(newUser, function(err, user) {
-    //   if (err) throw err;
-    //   console.log(user);
-    // });
+    User.createUser(newUser, function(err, user) {
+      if (err) throw err;
+      console.log(user);
+    });
 
     req.flash('success', 'You are now registered and may log in.');
 
