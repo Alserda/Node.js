@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var multer = require('multer');
 var upload = multer({dest: 'uploads/'});
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
 var util = require('util');
 
 var greetings = require('../models/greetings')
@@ -28,7 +30,7 @@ router.get('/login', function(req, res, next) {
 });
 
 router.post('/register', upload.single('avatar'), function(req, res, next) {
-  // console.log(req.body);
+  console.log(req.body);
   // console.log(req.file);
   var name = req.body.name;
   var email = req.body.email;
@@ -88,7 +90,57 @@ router.post('/register', upload.single('avatar'), function(req, res, next) {
     res.location('/');
     res.redirect('/');
   }
-
 });
+
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  User.getUserById(id, function(err, user) {
+    done(err, user);
+  });
+});
+
+passport.use(new LocalStrategy(
+  function(username, password, done) {
+    console.log("LocalStrategy");
+    User.getUserByUsername(username, function(error, user) {
+      if(error) throw error;
+
+      if (!user) {
+        console.log('Unknown user');
+        return done(null, false, {message: 'Unknown User'});
+      }
+
+      User.comparePassword(password, user.password, function(error, isMatch) {
+        if (error) throw error;
+        if(isMatch) {
+          return done(null, user);
+        } else {
+          console.log('Invalid password');
+          return done(null, false, {message: 'Invalid password'});
+        }
+      });
+    });
+  }
+));
+
+router.post('/login', passport.authenticate('local', {
+  failureRedirect: '/users/login',
+  failureFlash: 'Invalid username or password' }),
+
+  function(req, res) {
+    console.log('Succesfully logged in!');
+    req.flash('success', 'You are logged in!');
+    res.redirect('/');
+  }
+);
+
+// router.post('/login', function(req, res) {
+//   console.log("dafsdfadsfdas")
+//   console.log(req.body)
+// });
+
 
 module.exports = router;
