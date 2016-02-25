@@ -13,7 +13,7 @@
     "jade": "~1.11.0",
     "morgan": "~1.6.1",
     "serve-favicon": "~2.3.0",
-    "mongodb": "*",
+    "mongodb": "*",             // Database
     "mongoose": "*",            // Driver voor mongoDB
     "connect-flash": "*",       // Flash messages
     "express-validator": "*",   // Form validations
